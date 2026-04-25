@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Questionnaire OhMyCake10 — L-BOOST DigitalWeb</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
 <style>
   :root {
     --gold:   #C9A96E;
@@ -108,9 +109,14 @@
   .cta-orb{position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,.1) 0%,transparent 70%);pointer-events:none;}
   .cta-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:26px;color:var(--white);line-height:1.4;margin-bottom:10px;}
   .cta-p{font-size:13px;color:var(--grey);line-height:1.7;margin-bottom:28px;max-width:440px;}
-  .btn-gold{background:var(--gold);border-radius:8px;padding:13px 24px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--dark);transition:all .2s;}
+  .btn-gold{background:var(--gold);border-radius:8px;padding:13px 24px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--dark);transition:all .2s;display:inline-flex;align-items:center;gap:10px;}
   .btn-gold:hover{background:var(--gold-l);transform:translateY(-1px);}
   .btn-gold:active{transform:translateY(0);}
+  .btn-gold:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .spinner{width:16px;height:16px;border:2px solid transparent;border-top-color:var(--dark);border-radius:50%;animation:spin .6s linear infinite;display:none;}
+  .btn-gold.loading .spinner{display:block;}
+  .btn-gold.loading .btn-text{display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
   .footer-line{margin-top:30px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
   .footer-line p{font-size:11px;color:#2E2E40;}
 
@@ -384,7 +390,7 @@
       <div class="cta-orb"></div>
       <p class="cta-h">Prête à faire exister<br/><em>ohmycakes10 en ligne ?</em></p>
       <p class="cta-p">Plus tes réponses sont précises, plus la proposition que je te prépare sera adaptée à ta réalité. Deux options t'attendent : avec ou sans toi aux manettes.</p>
-      <button class="btn-gold" onclick="handleSubmit()">Envoyer mes réponses ✦</button>
+      <button class="btn-gold" id="submitBtn" onclick="handleSubmit()"><span class="btn-text">Envoyer mes réponses ✦</span><span class="spinner"></span></button>
     </div>
     <div class="footer-line">
       <p>L-BOOST DigitalWeb · Agence Web & Digital · Troyes — Aube</p>
@@ -395,28 +401,224 @@
 </div>
 
 <script>
+  // ——— CONFIGURATION ———
+  const APPS_SCRIPT_URL = 'COLLE_TON_URL_ICI';
+  const WHATSAPP_PHONE  = '33756959078';
+
+  // ——— Champs requis ———
   const req = ['clientele','contenu','temps','budget','invest'];
 
+  // ——— Barre de progression ———
   function updateProg(){
     let done = 0;
     req.forEach(n => {
-      const chk = document.querySelector(`input[name="${n}"]:checked`);
-      if(chk) done++;
+      if(document.querySelector(`input[name="${n}"]:checked`)) done++;
     });
     document.getElementById('pf').style.width = Math.round(done/req.length*100)+'%';
   }
-
   document.querySelectorAll('input').forEach(el => el.addEventListener('change', updateProg));
   updateProg();
 
-  function handleSubmit(){
+  // ——— Collecte des reponses ———
+  function collectData(){
+    const data = {};
+
+    // Checkboxes -> array
+    ['clientele','reseaux','besoins','ambiance'].forEach(name => {
+      data[name] = [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el => el.value);
+    });
+
+    // Radios -> string
+    ['abonnes','mode','frequence','contenu','photo','temps','canva',
+     'budget','invest','print','paiement'].forEach(name => {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      data[name] = el ? el.value : '';
+    });
+
+    // Textareas -> string
+    ['clients_base','besoin_autre','inspirations','non_voulu','libre'].forEach(name => {
+      const el = document.querySelector(`textarea[name="${name}"]`);
+      data[name] = el ? el.value.trim() : '';
+    });
+
+    return data;
+  }
+
+  // ——— Labels lisibles ———
+  const LABELS = {
+    clientele:'Clientele cible', clients_base:'Base clients',
+    reseaux:'Reseaux sociaux', abonnes:'Abonnes', mode:'Mode compte', frequence:'Frequence posts',
+    contenu:'Aisance contenu', photo:'Capacite photo/video', temps:'Temps/semaine', canva:'Canva',
+    budget:'Budget global', invest:'Type investissement', print:'Supports physiques', paiement:'Reglement',
+    besoins:'Besoins', besoin_autre:'Autre besoin',
+    ambiance:'Ambiance', inspirations:'Inspirations', non_voulu:'Exclusions', libre:'Message libre'
+  };
+
+  // ——— Generation PDF avec jsPDF ———
+  function generatePdf(data){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'mm', format:'a4' });
+    const W = doc.internal.pageSize.getWidth();
+    const margin = 18;
+    let y = 18;
+
+    // Couleurs
+    const gold  = [201,169,110];
+    const dark  = [11,11,15];
+    const white = [245,244,240];
+    const grey  = [107,107,126];
+
+    // Fond sombre
+    doc.setFillColor(...dark);
+    doc.rect(0, 0, W, doc.internal.pageSize.getHeight(), 'F');
+
+    // Header
+    doc.setFillColor(...gold);
+    doc.roundedRect(margin, y, 16, 16, 3, 3, 'F');
+    doc.setFontSize(9); doc.setTextColor(...dark);
+    doc.text('LB', margin + 8, y + 10.5, { align:'center' });
+    doc.setFontSize(12); doc.setTextColor(...white);
+    doc.text('L-BOOST DigitalWeb', margin + 22, y + 10);
+    doc.setFontSize(8); doc.setTextColor(...grey);
+    doc.text('Questionnaire client', W - margin, y + 6, { align:'right' });
+    doc.text(new Date().toLocaleDateString('fr-FR'), W - margin, y + 12, { align:'right' });
+    y += 26;
+
+    // Titre
+    doc.setFontSize(22); doc.setTextColor(...white);
+    doc.text('Questionnaire OhMyCake10', margin, y);
+    y += 8;
+    doc.setFontSize(10); doc.setTextColor(...gold);
+    doc.text('Pause Gourmande — Nogent-sur-Seine', margin, y);
+    y += 4;
+
+    // Ligne or
+    doc.setDrawColor(...gold); doc.setLineWidth(0.3);
+    doc.line(margin, y, W - margin, y);
+    y += 10;
+
+    // Sections
+    const sections = [
+      { title:'01 · CLIENTELE CIBLE', keys:['clientele','clients_base'] },
+      { title:'02 · PRESENCE RESEAUX', keys:['reseaux','abonnes','mode','frequence'] },
+      { title:'03 · COMPETENCES & TEMPS', keys:['contenu','photo','temps','canva'] },
+      { title:'04 · BUDGET', keys:['budget','invest','print','paiement'] },
+      { title:'05 · BESOINS', keys:['besoins','besoin_autre'] },
+      { title:'06 · INSPIRATIONS & AMBIANCE', keys:['ambiance','inspirations','non_voulu','libre'] }
+    ];
+
+    sections.forEach(sec => {
+      // Saut de page si necessaire
+      if(y > 260){
+        doc.addPage();
+        doc.setFillColor(...dark);
+        doc.rect(0,0,W,doc.internal.pageSize.getHeight(),'F');
+        y = 18;
+      }
+
+      // Titre section
+      doc.setFontSize(9); doc.setTextColor(...gold);
+      doc.text(sec.title, margin, y);
+      y += 7;
+
+      sec.keys.forEach(key => {
+        let val = data[key];
+        if(Array.isArray(val)) val = val.join(', ');
+        if(!val) val = '—';
+
+        // Label
+        doc.setFontSize(7); doc.setTextColor(...grey);
+        doc.text((LABELS[key]||key).toUpperCase(), margin, y);
+        y += 4;
+
+        // Valeur (avec retour a la ligne)
+        doc.setFontSize(10); doc.setTextColor(...white);
+        const lines = doc.splitTextToSize(val, W - margin * 2);
+        lines.forEach(line => {
+          if(y > 278){ doc.addPage(); doc.setFillColor(...dark); doc.rect(0,0,W,doc.internal.pageSize.getHeight(),'F'); y = 18; }
+          doc.text(line, margin, y);
+          y += 5;
+        });
+        y += 3;
+      });
+      y += 4;
+    });
+
+    // Footer derniere page
+    doc.setFontSize(7); doc.setTextColor(34,34,46);
+    doc.text('L-BOOST DigitalWeb · lboost-digitalweb.fr · Document confidentiel', W/2, 290, { align:'center' });
+
+    return doc;
+  }
+
+  // ——— Envoi principal ———
+  async function handleSubmit(){
+    // Validation
     const missing = req.filter(n => !document.querySelector(`input[name="${n}"]:checked`));
     if(missing.length){
-      alert('Merci de répondre aux questions marquées ✦ pour que je puisse te faire une proposition adaptée !');
+      alert('Merci de repondre aux questions marquees ✦ pour que je puisse te faire une proposition adaptee !');
       return;
     }
-    document.getElementById('success').classList.add('show');
-    window.scrollTo({top:0,behavior:'smooth'});
+
+    const btn = document.getElementById('submitBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      // 1) Collecter les donnees
+      const data = collectData();
+
+      // 2) Generer le PDF
+      const doc = generatePdf(data);
+      const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+      // 3) Telecharger le PDF localement (backup)
+      doc.save('Questionnaire_OhMyCake10_' + new Date().toISOString().slice(0,10) + '.pdf');
+
+      // 4) Envoyer au Apps Script
+      data.pdfBase64 = pdfBase64;
+      data._meta = { client: 'OhMyCake10', date: new Date().toISOString() };
+
+      if(APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'COLLE_TON_URL_ICI'){
+        try {
+          await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(data),
+            mode: 'no-cors'
+          });
+        } catch(fetchErr){
+          console.warn('Envoi Apps Script echoue (le PDF local a ete sauvegarde):', fetchErr);
+        }
+      } else {
+        console.warn('APPS_SCRIPT_URL non configure — seul le PDF local a ete genere.');
+      }
+
+      // 5) Ecran de succes
+      document.getElementById('success').classList.add('show');
+      window.scrollTo({ top:0, behavior:'smooth' });
+
+      // 6) Ouvrir WhatsApp apres 1.5s
+      setTimeout(() => {
+        const besoins = (data.besoins || []).join(', ') || 'non precise';
+        const budget = data.budget || 'non precise';
+        const msg = encodeURIComponent(
+          `Salam ! 🧁\n\n`
+          + `Je viens de remplir le questionnaire pour OhMyCake10.\n\n`
+          + `Mes besoins principaux : ${besoins}\n`
+          + `Budget envisage : ${budget}\n\n`
+          + `J'ai hate de voir ta proposition ! Merci 🙏`
+        );
+        window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`, '_blank');
+      }, 1500);
+
+    } catch(err){
+      console.error('Erreur:', err);
+      alert('Une erreur est survenue. Le PDF a ete telecharge localement en backup.');
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
   }
 </script>
 </body>
