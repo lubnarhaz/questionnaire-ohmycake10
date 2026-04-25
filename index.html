@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Questionnaire OhMyCake10 — L-BOOST DigitalWeb</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold:   #C9A96E;
+    --gold-l: #E8D5B0;
+    --dark:   #0B0B0F;
+    --dark2:  #111118;
+    --dark3:  #1A1A24;
+    --dark4:  #22222E;
+    --white:  #F5F4F0;
+    --grey:   #6B6B7E;
+    --grey2:  #A0A0B8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  ::selection{background:#C9A96E30;}
+  body{background:var(--dark);color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
+
+  /* NAV */
+  nav{border-bottom:1px solid #ffffff0a;padding:0 28px;display:flex;justify-content:space-between;align-items:center;height:54px;position:sticky;top:0;background:rgba(11,11,15,.92);backdrop-filter:blur(14px);z-index:100;}
+  .nav-brand{display:flex;align-items:center;gap:9px;}
+  .nav-logo{width:20px;height:20px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:var(--dark);}
+  .nav-name{font-weight:600;font-size:13px;letter-spacing:.3px;}
+  .nav-right{display:flex;align-items:center;gap:16px;}
+  .nav-sub{font-size:11px;color:var(--grey);}
+  .nav-badge{background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.3);border-radius:20px;padding:5px 14px;font-weight:600;font-size:11px;color:var(--gold);}
+
+  /* PROGRESS */
+  .prog{height:2px;background:rgba(255,255,255,.05);position:sticky;top:54px;z-index:99;}
+  .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c88a);width:0%;transition:width .4s ease;}
+
+  /* LAYOUT */
+  .wrap{max-width:700px;margin:0 auto;padding:0 24px 80px;animation:fadeIn .5s cubic-bezier(.16,1,.3,1) both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  /* HERO */
+  .hero{padding:52px 0 44px;border-bottom:1px solid #ffffff08;}
+  .hero-meta{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:36px;}
+  .hero-date{font-size:11px;font-weight:500;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
+  .hero-info{font-size:11px;color:var(--grey);}
+  .hero-info span{color:var(--white);}
+  .hero-contact{text-align:right;font-size:11px;color:var(--grey);}
+  .eyebrow{font-size:11px;font-weight:500;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(36px,8vw,60px);line-height:1.05;margin-bottom:10px;}
+  h1 em{color:var(--gold);font-style:italic;}
+  .hero-sub{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--grey);margin-bottom:14px;}
+  .hero-desc{font-size:12px;color:var(--grey);line-height:1.8;max-width:480px;}
+
+  /* SECTION */
+  .section{padding:40px 0;border-bottom:1px solid #ffffff08;}
+  .sec-label{font-size:11px;font-weight:500;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:24px;}
+
+  /* RECAP */
+  .recap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+  .rc{background:var(--dark3);border:1px solid #ffffff07;border-radius:10px;padding:14px 16px;}
+  .rc-l{font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+  .rc-v{font-size:12px;color:var(--grey2);line-height:1.5;display:flex;align-items:flex-start;gap:7px;}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.75;flex-shrink:0;margin-top:5px;}
+
+  /* FIELD */
+  .field{margin-bottom:26px;}
+  .field:last-child{margin-bottom:0;}
+  .fl{font-size:12px;font-weight:500;color:var(--grey2);margin-bottom:12px;line-height:1.5;}
+  .fl .req{color:var(--gold);margin-left:3px;}
+
+  textarea,input[type=text]{width:100%;background:var(--dark3);border:1px solid #ffffff09;border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:13px 16px;outline:none;resize:vertical;transition:border-color .2s,box-shadow .2s;min-height:80px;}
+  textarea:focus,input[type=text]:focus{border-color:rgba(201,169,110,.4);box-shadow:0 0 0 3px rgba(201,169,110,.07);}
+  textarea::placeholder,input::placeholder{color:var(--grey);font-size:12px;}
+
+  /* OPTION ROWS */
+  .opts{display:flex;flex-direction:column;gap:6px;}
+  .opts2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .opts3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .opt{position:relative;}
+  .opt input{display:none;}
+  .opt label{display:flex;align-items:center;gap:12px;background:var(--dark3);border:1px solid #ffffff08;border-radius:8px;padding:13px 16px;cursor:pointer;font-size:13px;color:var(--grey2);transition:all .18s;user-select:none;line-height:1.4;}
+  .opt label:hover{border-color:rgba(201,169,110,.25);color:var(--white);}
+  .opt input:checked+label{border-color:rgba(201,169,110,.45);background:rgba(201,169,110,.06);color:var(--gold-l);}
+  .cbox{width:16px;height:16px;border:1.5px solid #ffffff18;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s;font-size:10px;color:transparent;}
+  .opt input:checked+label .cbox{background:var(--gold);border-color:var(--gold);color:var(--dark);}
+  .rbox{width:16px;height:16px;border:1.5px solid #ffffff18;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+  .rdot{width:7px;height:7px;border-radius:50%;background:var(--gold);display:none;}
+  .opt input[type=radio]:checked+label .rbox{border-color:var(--gold);}
+  .opt input[type=radio]:checked+label .rdot{display:block;}
+
+  /* CHIPS */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip input{display:none;}
+  .chip label{display:inline-block;background:var(--dark3);border:1px solid #ffffff09;border-radius:20px;padding:8px 18px;font-size:12px;color:var(--grey2);cursor:pointer;transition:all .18s;}
+  .chip label:hover{border-color:rgba(201,169,110,.3);color:var(--white);}
+  .chip input:checked+label{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600;}
+
+  /* PILLS */
+  .pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill input{display:none;}
+  .pill label{display:inline-flex;align-items:center;gap:6px;background:var(--dark3);border:1px solid #ffffff08;border-radius:8px;padding:10px 16px;font-size:12px;color:var(--grey2);cursor:pointer;transition:all .18s;}
+  .pill label:hover{border-color:rgba(201,169,110,.25);color:var(--white);}
+  .pill input:checked+label{border-color:rgba(201,169,110,.45);background:rgba(201,169,110,.06);color:var(--gold-l);}
+
+  /* CTA */
+  .cta-wrap{padding:48px 0 0;}
+  .cta-card{padding:40px 36px;background:linear-gradient(135deg,var(--dark3) 0%,var(--dark4) 100%);border-radius:16px;border:1px solid rgba(201,169,110,.2);position:relative;overflow:hidden;}
+  .cta-orb{position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,.1) 0%,transparent 70%);pointer-events:none;}
+  .cta-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:26px;color:var(--white);line-height:1.4;margin-bottom:10px;}
+  .cta-p{font-size:13px;color:var(--grey);line-height:1.7;margin-bottom:28px;max-width:440px;}
+  .btn-gold{background:var(--gold);border-radius:8px;padding:13px 24px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--dark);transition:all .2s;}
+  .btn-gold:hover{background:var(--gold-l);transform:translateY(-1px);}
+  .btn-gold:active{transform:translateY(0);}
+  .footer-line{margin-top:30px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  .footer-line p{font-size:11px;color:#2E2E40;}
+
+  /* SUCCESS */
+  .success{display:none;position:fixed;inset:0;background:rgba(11,11,15,.97);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:40px;}
+  .success.show{display:flex;}
+  .suc-emoji{font-size:52px;animation:pop .5s ease both;}
+  @keyframes pop{from{transform:scale(.5);opacity:0;}70%{transform:scale(1.15);}to{transform:scale(1);opacity:1;}}
+  .suc-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:42px;color:var(--white);}
+  .suc-h em{color:var(--gold);font-style:italic;}
+  .suc-p{font-size:13px;color:var(--grey);max-width:360px;line-height:1.8;}
+
+  @media(max-width:520px){
+    .opts2,.opts3{grid-template-columns:1fr;}
+    .recap-grid{grid-template-columns:1fr;}
+    .hero-meta{flex-direction:column;}
+    .hero-contact{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">LB</div>
+    <span class="nav-name">L-BOOST DigitalWeb</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-sub">Questionnaire client</span>
+    <span class="nav-badge">ohmycakes10</span>
+  </div>
+</nav>
+
+<div class="prog"><div class="prog-fill" id="pf"></div></div>
+
+<!-- SUCCESS -->
+<div class="success" id="success">
+  <div class="suc-emoji">🧁</div>
+  <h2 class="suc-h">Merci <em>beaucoup !</em></h2>
+  <p class="suc-p">Tes réponses ont bien été reçues. Je reviens vers toi très vite avec des propositions sur-mesure. Incha Allah on va faire quelque chose de beau ensemble !</p>
+  <p style="font-size:11px;color:#2E2E40;margin-top:16px;">— L-BOOST DigitalWeb · lboost-digitalweb.fr</p>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-meta">
+      <div>
+        <p class="hero-date">Questionnaire · Analyse de besoins</p>
+        <p class="hero-info">Préparé pour <span>ohmycakes10</span> · Nogent-sur-Seine</p>
+      </div>
+      <div class="hero-contact">
+        <p>lboost-digitalweb.fr</p>
+        <p>07 56 95 90 78</p>
+      </div>
+    </div>
+    <p class="eyebrow">Communication · Lancement Mai 2025</p>
+    <h1>Parlons de<br/><em>ton projet.</em></h1>
+    <p class="hero-sub">Pause Gourmande · OhMyCake10</p>
+    <p class="hero-desc">Pour te proposer une stratégie vraiment adaptée — et des tarifs au plus juste — j'ai besoin de mieux te connaître. Tes réponses restent strictement confidentielles.</p>
+  </div>
+
+  <!-- RECAP -->
+  <div class="section">
+    <p class="sec-label">Ce que je sais déjà — rien à répéter ✓</p>
+    <div class="recap-grid">
+      <div class="rc"><div class="rc-l">Nom du projet</div><div class="rc-v"><span class="dot"></span>OHMYCAKE10</div></div>
+      <div class="rc"><div class="rc-l">Activité actuelle</div><div class="rc-v"><span class="dot"></span>Matériel de pâtisserie + formations enfants</div></div>
+      <div class="rc"><div class="rc-l">Nouveau service</div><div class="rc-v"><span class="dot"></span>Pause gourmande — boissons chaudes & pâtisseries sèches</div></div>
+      <div class="rc"><div class="rc-l">Date visée</div><div class="rc-v"><span class="dot"></span>Mi-mai · max fin mai</div></div>
+      <div class="rc"><div class="rc-l">Zone géographique</div><div class="rc-v"><span class="dot"></span>Nogent-sur-Seine + 50 km autour</div></div>
+      <div class="rc"><div class="rc-l">Identité visuelle</div><div class="rc-v"><span class="dot"></span>Oui — réalisée par toi-même</div></div>
+      <div class="rc"><div class="rc-l">Site web / e-commerce</div><div class="rc-v"><span class="dot"></span>Pas encore</div></div>
+      <div class="rc"><div class="rc-l">Format</div><div class="rc-v"><span class="dot"></span>Boutique physique</div></div>
+    </div>
+  </div>
+
+  <!-- 01 · CLIENTÈLE -->
+  <div class="section">
+    <p class="sec-label">01 · Ta clientèle cible</p>
+    <div class="field">
+      <p class="fl">Pour la pause gourmande, tu vises plutôt quel type de personnes ?<span class="req">✦</span></p>
+      <div class="opts2">
+        <div class="opt"><input type="checkbox" id="c1" name="clientele" value="familles"><label for="c1"><span class="cbox">✓</span>Mamans & familles</label></div>
+        <div class="opt"><input type="checkbox" id="c2" name="clientele" value="actifs"><label for="c2"><span class="cbox">✓</span>Actifs / travailleurs</label></div>
+        <div class="opt"><input type="checkbox" id="c3" name="clientele" value="seniors"><label for="c3"><span class="cbox">✓</span>Seniors</label></div>
+        <div class="opt"><input type="checkbox" id="c4" name="clientele" value="ados"><label for="c4"><span class="cbox">✓</span>Ados / jeunes</label></div>
+        <div class="opt"><input type="checkbox" id="c5" name="clientele" value="tout"><label for="c5"><span class="cbox">✓</span>Tout le monde</label></div>
+        <div class="opt"><input type="checkbox" id="c6" name="clientele" value="autre"><label for="c6"><span class="cbox">✓</span>Autre</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Tu as déjà une base de clients fidèles ? Combien environ ?</p>
+      <textarea name="clients_base" placeholder="Ex : Oui, environ 50 clientes régulières pour les formations… / Non, c'est un nouveau départ."></textarea>
+    </div>
+  </div>
+
+  <!-- 02 · RÉSEAUX -->
+  <div class="section">
+    <p class="sec-label">02 · Ta présence sur les réseaux</p>
+    <div class="field">
+      <p class="fl">Tu es présente sur quels réseaux ?<span class="req">✦</span></p>
+      <div class="opts2">
+        <div class="opt"><input type="checkbox" id="r1" name="reseaux" value="instagram"><label for="r1"><span class="cbox">✓</span>📸 Instagram</label></div>
+        <div class="opt"><input type="checkbox" id="r2" name="reseaux" value="facebook"><label for="r2"><span class="cbox">✓</span>👥 Facebook</label></div>
+        <div class="opt"><input type="checkbox" id="r3" name="reseaux" value="tiktok"><label for="r3"><span class="cbox">✓</span>🎵 TikTok</label></div>
+        <div class="opt"><input type="checkbox" id="r4" name="reseaux" value="aucun"><label for="r4"><span class="cbox">✓</span>Aucun pour l'instant</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Combien d'abonnés sur ton compte principal ?</p>
+      <div class="chips">
+        <div class="chip"><input type="radio" id="ab0" name="abonnes" value="0"><label for="ab0">Pas encore de compte</label></div>
+        <div class="chip"><input type="radio" id="ab1" name="abonnes" value="m100"><label for="ab1">Moins de 100</label></div>
+        <div class="chip"><input type="radio" id="ab2" name="abonnes" value="100-500"><label for="ab2">100 – 500</label></div>
+        <div class="chip"><input type="radio" id="ab3" name="abonnes" value="500-2k"><label for="ab3">500 – 2 000</label></div>
+        <div class="chip"><input type="radio" id="ab4" name="abonnes" value="2k+"><label for="ab4">+ de 2 000</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Ton compte est en mode…</p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="mo1" name="mode" value="pro"><label for="mo1"><span class="rbox"><span class="rdot"></span></span>Professionnel ✅</label></div>
+        <div class="opt"><input type="radio" id="mo2" name="mode" value="perso"><label for="mo2"><span class="rbox"><span class="rdot"></span></span>Personnel</label></div>
+        <div class="opt"><input type="radio" id="mo3" name="mode" value="sais_pas"><label for="mo3"><span class="rbox"><span class="rdot"></span></span>Je ne sais pas</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Tu postes régulièrement en ce moment ?</p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="po1" name="frequence" value="regulier"><label for="po1"><span class="rbox"><span class="rdot"></span></span>Oui, régulièrement</label></div>
+        <div class="opt"><input type="radio" id="po2" name="frequence" value="parfois"><label for="po2"><span class="rbox"><span class="rdot"></span></span>Parfois</label></div>
+        <div class="opt"><input type="radio" id="po3" name="frequence" value="jamais"><label for="po3"><span class="rbox"><span class="rdot"></span></span>Pas du tout</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 · COMPÉTENCES -->
+  <div class="section">
+    <p class="sec-label">03 · Tes compétences & ton temps</p>
+    <div class="field">
+      <p class="fl">Tu es à l'aise pour créer du contenu toi-même ? (photos, textes, stories…)<span class="req">✦</span></p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="co1" name="contenu" value="oui"><label for="co1"><span class="rbox"><span class="rdot"></span></span>Oui, très à l'aise 💪</label></div>
+        <div class="opt"><input type="radio" id="co2" name="contenu" value="un_peu"><label for="co2"><span class="rbox"><span class="rdot"></span></span>Un peu, j'apprends</label></div>
+        <div class="opt"><input type="radio" id="co3" name="contenu" value="non"><label for="co3"><span class="rbox"><span class="rdot"></span></span>Pas du tout</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Tu peux filmer / photographier ta boutique et tes préparations ?</p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="ph1" name="photo" value="oui"><label for="ph1"><span class="rbox"><span class="rdot"></span></span>Oui, sans problème</label></div>
+        <div class="opt"><input type="radio" id="ph2" name="photo" value="aide"><label for="ph2"><span class="rbox"><span class="rdot"></span></span>Avec un peu d'aide</label></div>
+        <div class="opt"><input type="radio" id="ph3" name="photo" value="non"><label for="ph3"><span class="rbox"><span class="rdot"></span></span>Non, besoin de toi</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Combien d'heures par semaine tu peux consacrer aux réseaux ?<span class="req">✦</span></p>
+      <div class="chips">
+        <div class="chip"><input type="radio" id="h1" name="temps" value="m1h"><label for="h1">Moins de 1h</label></div>
+        <div class="chip"><input type="radio" id="h2" name="temps" value="1-3h"><label for="h2">1 à 3h</label></div>
+        <div class="chip"><input type="radio" id="h3" name="temps" value="3-5h"><label for="h3">3 à 5h</label></div>
+        <div class="chip"><input type="radio" id="h4" name="temps" value="5h+"><label for="h4">+ de 5h</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Tu utilises Canva ?</p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="cv1" name="canva" value="bien"><label for="cv1"><span class="rbox"><span class="rdot"></span></span>Oui, bien 🎨</label></div>
+        <div class="opt"><input type="radio" id="cv2" name="canva" value="un_peu"><label for="cv2"><span class="rbox"><span class="rdot"></span></span>Un peu</label></div>
+        <div class="opt"><input type="radio" id="cv3" name="canva" value="non"><label for="cv3"><span class="rbox"><span class="rdot"></span></span>Jamais utilisé</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 · BUDGET -->
+  <div class="section">
+    <p class="sec-label">04 · Ton budget</p>
+    <div class="field">
+      <p class="fl">Tu as une enveloppe globale en tête pour la communication du lancement ?<span class="req">✦</span></p>
+      <div class="chips">
+        <div class="chip"><input type="radio" id="b1" name="budget" value="m100"><label for="b1">Moins de 100 €</label></div>
+        <div class="chip"><input type="radio" id="b2" name="budget" value="100-300"><label for="b2">100 – 300 €</label></div>
+        <div class="chip"><input type="radio" id="b3" name="budget" value="300-500"><label for="b3">300 – 500 €</label></div>
+        <div class="chip"><input type="radio" id="b4" name="budget" value="500-1k"><label for="b4">500 – 1 000 €</label></div>
+        <div class="chip"><input type="radio" id="b5" name="budget" value="1k+"><label for="b5">+ de 1 000 €</label></div>
+        <div class="chip"><input type="radio" id="b6" name="budget" value="?"><label for="b6">Je ne sais pas encore</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Tu préfères investir comment ?<span class="req">✦</span></p>
+      <div class="opts">
+        <div class="opt"><input type="radio" id="in1" name="invest" value="organique"><label for="in1"><span class="rbox"><span class="rdot"></span></span>100 % organique — sans pub payante</label></div>
+        <div class="opt"><input type="radio" id="in2" name="invest" value="pub"><label for="in2"><span class="rbox"><span class="rdot"></span></span>Avec de la pub payante (Meta Ads)</label></div>
+        <div class="opt"><input type="radio" id="in3" name="invest" value="mixte"><label for="in3"><span class="rbox"><span class="rdot"></span></span>Les deux — mixte</label></div>
+        <div class="opt"><input type="radio" id="in4" name="invest" value="conseil"><label for="in4"><span class="rbox"><span class="rdot"></span></span>Je veux ton conseil sur ce point</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Tu as un budget pour les supports physiques ? (banderoles, flyers, affiches…)</p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="pr1" name="print" value="oui"><label for="pr1"><span class="rbox"><span class="rdot"></span></span>Oui</label></div>
+        <div class="opt"><input type="radio" id="pr2" name="print" value="inclus"><label for="pr2"><span class="rbox"><span class="rdot"></span></span>Inclus dans le budget</label></div>
+        <div class="opt"><input type="radio" id="pr3" name="print" value="non"><label for="pr3"><span class="rbox"><span class="rdot"></span></span>Non</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Mode de règlement préféré</p>
+      <div class="opts3">
+        <div class="opt"><input type="radio" id="pa1" name="paiement" value="une_fois"><label for="pa1"><span class="rbox"><span class="rdot"></span></span>En une fois</label></div>
+        <div class="opt"><input type="radio" id="pa2" name="paiement" value="echelonne"><label for="pa2"><span class="rbox"><span class="rdot"></span></span>Étalé sur 2–3 mois</label></div>
+        <div class="opt"><input type="radio" id="pa3" name="paiement" value="indiff"><label for="pa3"><span class="rbox"><span class="rdot"></span></span>Peu importe</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 · BESOINS -->
+  <div class="section">
+    <p class="sec-label">05 · Ce dont tu as besoin</p>
+    <p style="font-size:12px;color:var(--grey);margin-bottom:18px;line-height:1.7;">Coche tout ce qui t'intéresse — je te ferai deux propositions : <em style="color:var(--grey2);">«&nbsp;tu fais une partie&nbsp;»</em> et <em style="color:var(--grey2);">«&nbsp;tu n'as rien à faire&nbsp;».</em></p>
+    <div class="opts2">
+      <div class="opt"><input type="checkbox" id="bs1" name="besoins" value="strategie"><label for="bs1"><span class="cbox">✓</span>📋 Stratégie de communication</label></div>
+      <div class="opt"><input type="checkbox" id="bs2" name="besoins" value="visuels"><label for="bs2"><span class="cbox">✓</span>🎨 Création de visuels & posts</label></div>
+      <div class="opt"><input type="checkbox" id="bs3" name="besoins" value="cm"><label for="bs3"><span class="cbox">✓</span>📲 Gestion des réseaux sociaux</label></div>
+      <div class="opt"><input type="checkbox" id="bs4" name="besoins" value="pub"><label for="bs4"><span class="cbox">✓</span>📣 Publicité payante (Meta Ads)</label></div>
+      <div class="opt"><input type="checkbox" id="bs5" name="besoins" value="print"><label for="bs5"><span class="cbox">✓</span>🖨 Flyers · Banderoles · Affiches</label></div>
+      <div class="opt"><input type="checkbox" id="bs6" name="besoins" value="logo"><label for="bs6"><span class="cbox">✓</span>✏️ Retouche identité visuelle</label></div>
+      <div class="opt"><input type="checkbox" id="bs7" name="besoins" value="photo"><label for="bs7"><span class="cbox">✓</span>📷 Shooting photo / vidéo</label></div>
+      <div class="opt"><input type="checkbox" id="bs8" name="besoins" value="site"><label for="bs8"><span class="cbox">✓</span>🌐 Site web / boutique en ligne</label></div>
+      <div class="opt"><input type="checkbox" id="bs9" name="besoins" value="formation"><label for="bs9"><span class="cbox">✓</span>🎓 Formation pour gérer seule ensuite</label></div>
+      <div class="opt"><input type="checkbox" id="bs10" name="besoins" value="walkin"><label for="bs10"><span class="cbox">✓</span>🃏 Carte fidélité digitale (WalKin)</label></div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <p class="fl">Autre besoin non listé ?</p>
+      <textarea name="besoin_autre" placeholder="Dis-moi librement…" style="min-height:60px;"></textarea>
+    </div>
+  </div>
+
+  <!-- 06 · INSPIRATIONS -->
+  <div class="section">
+    <p class="sec-label">06 · Inspirations & ambiance</p>
+    <div class="field">
+      <p class="fl">L'ambiance que tu veux donner à ta Pause Gourmande</p>
+      <div class="pills">
+        <div class="pill"><input type="checkbox" id="am1" name="ambiance" value="cosy"><label for="am1">☕ Cosy & chaleureux</label></div>
+        <div class="pill"><input type="checkbox" id="am2" name="ambiance" value="elegant"><label for="am2">✨ Élégant & raffiné</label></div>
+        <div class="pill"><input type="checkbox" id="am3" name="ambiance" value="familial"><label for="am3">👨‍👩‍👧 Familial & accessible</label></div>
+        <div class="pill"><input type="checkbox" id="am4" name="ambiance" value="artisanal"><label for="am4">🧁 Artisanal & authentique</label></div>
+        <div class="pill"><input type="checkbox" id="am5" name="ambiance" value="moderne"><label for="am5">🔥 Tendance & moderne</label></div>
+        <div class="pill"><input type="checkbox" id="am6" name="ambiance" value="festif"><label for="am6">🍪 Gourmand & festif</label></div>
+      </div>
+    </div>
+    <div class="field">
+      <p class="fl">Des comptes, marques ou visuels que tu aimes et dont tu veux t'inspirer ?</p>
+      <textarea name="inspirations" placeholder="Ex : @ladurée, @fou_de_patisserie — j'aime les tons beige & or, style élégant mais accessible…"></textarea>
+    </div>
+    <div class="field">
+      <p class="fl">Ce que tu ne veux surtout PAS dans ta communication</p>
+      <textarea name="non_voulu" placeholder="Ex : pas de couleurs trop vives, pas de style trop enfantin…" style="min-height:65px;"></textarea>
+    </div>
+    <div class="field">
+      <p class="fl">Une question ou une info à me partager avant qu'on commence ?</p>
+      <textarea name="libre" placeholder="Tout ce que tu veux me dire librement…" style="min-height:65px;"></textarea>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <div class="cta-card">
+      <div class="cta-orb"></div>
+      <p class="cta-h">Prête à faire exister<br/><em>ohmycakes10 en ligne ?</em></p>
+      <p class="cta-p">Plus tes réponses sont précises, plus la proposition que je te prépare sera adaptée à ta réalité. Deux options t'attendent : avec ou sans toi aux manettes.</p>
+      <button class="btn-gold" onclick="handleSubmit()">Envoyer mes réponses ✦</button>
+    </div>
+    <div class="footer-line">
+      <p>L-BOOST DigitalWeb · Agence Web & Digital · Troyes — Aube</p>
+      <p>Document confidentiel · 2025</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const req = ['clientele','contenu','temps','budget','invest'];
+
+  function updateProg(){
+    let done = 0;
+    req.forEach(n => {
+      const chk = document.querySelector(`input[name="${n}"]:checked`);
+      if(chk) done++;
+    });
+    document.getElementById('pf').style.width = Math.round(done/req.length*100)+'%';
+  }
+
+  document.querySelectorAll('input').forEach(el => el.addEventListener('change', updateProg));
+  updateProg();
+
+  function handleSubmit(){
+    const missing = req.filter(n => !document.querySelector(`input[name="${n}"]:checked`));
+    if(missing.length){
+      alert('Merci de répondre aux questions marquées ✦ pour que je puisse te faire une proposition adaptée !');
+      return;
+    }
+    document.getElementById('success').classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+</script>
+</body>
+</html>
