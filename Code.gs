@@ -5,6 +5,7 @@
 
 // ——— CONFIGURATION ———
 const OWNER_EMAIL    = 'laalililoubna41@gmail.com';
+const NOTIFY_EMAIL   = 'l-boost@hotmail.com';
 const SHEET_NAME     = 'Questionnaires OhMyCake10';
 const DRIVE_FOLDER   = 'Questionnaires OhMyCake10';
 const CLIENT_NAME    = 'OhMyCake10';
@@ -63,8 +64,11 @@ function doPost(e) {
     // 2) Sauvegarder le PDF dans Drive
     var pdfUrl = savePdfToDrive(data.pdfBase64, data._meta);
 
-    // 3) Envoyer le mail avec PJ
+    // 3) Envoyer le mail avec PJ (Gmail)
     sendEmail(data, pdfUrl);
+
+    // 4) Notification Hotmail avec lien PDF
+    sendNotification(data, pdfUrl);
 
     return jsonResponse({ success: true, message: 'Donnees recues avec succes' });
 
@@ -185,6 +189,63 @@ function sendEmail(data, pdfUrl) {
     {
       htmlBody: html,
       attachments: attachments,
+      name: 'L-BOOST DigitalWeb'
+    }
+  );
+}
+
+// ============================================================
+// 4) NOTIFICATION HOTMAIL — lien PDF + resume
+// ============================================================
+function sendNotification(data, pdfUrl) {
+  var date = Utilities.formatDate(new Date(), 'Europe/Paris', 'dd/MM/yyyy a HH:mm');
+
+  var besoins = data.besoins;
+  if (Array.isArray(besoins)) besoins = besoins.join(', ');
+  if (!besoins) besoins = '—';
+
+  var budget = data.budget || '—';
+
+  var driveBtn = pdfUrl
+    ? '<a href="' + pdfUrl + '" style="display:inline-block;background:#C9A96E;color:#0B0B0F;padding:14px 28px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;margin:20px 0;">Ouvrir le PDF sur Drive</a>'
+    : '<p style="color:#6B6B7E;font-size:12px;">(Aucun PDF genere)</p>';
+
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
+    + '<body style="margin:0;padding:0;background:#0B0B0F;font-family:Arial,Helvetica,sans-serif;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#0B0B0F;padding:40px 16px;">'
+    + '<tr><td align="center">'
+    + '<table width="520" cellpadding="0" cellspacing="0" style="background:#111118;border-radius:12px;border:1px solid #1A1A24;">'
+
+    // Header
+    + '<tr><td style="padding:28px 28px 20px 28px;border-bottom:1px solid #1A1A24;">'
+    + '<span style="display:inline-block;background:#C9A96E;color:#0B0B0F;padding:4px 8px;border-radius:4px;font-weight:700;font-size:11px;">LB</span>'
+    + ' <span style="color:#F5F4F0;font-size:14px;font-weight:600;margin-left:6px;">L-BOOST DigitalWeb</span>'
+    + '</td></tr>'
+
+    // Body
+    + '<tr><td style="padding:28px;text-align:center;">'
+    + '<p style="font-size:28px;color:#F5F4F0;font-weight:300;margin:0 0 6px 0;">Nouveau questionnaire</p>'
+    + '<p style="font-size:18px;color:#C9A96E;font-style:italic;margin:0 0 24px 0;">' + CLIENT_NAME + '</p>'
+    + '<table width="100%" style="margin:0 0 20px 0;text-align:left;">'
+    + '<tr><td style="padding:8px 0;border-bottom:1px solid #1A1A24;"><span style="font-size:10px;color:#6B6B7E;text-transform:uppercase;letter-spacing:1px;">Date</span><br/><span style="font-size:13px;color:#E8D5B0;">' + date + '</span></td></tr>'
+    + '<tr><td style="padding:8px 0;border-bottom:1px solid #1A1A24;"><span style="font-size:10px;color:#6B6B7E;text-transform:uppercase;letter-spacing:1px;">Budget</span><br/><span style="font-size:13px;color:#E8D5B0;">' + escapeHtml(budget) + '</span></td></tr>'
+    + '<tr><td style="padding:8px 0;border-bottom:1px solid #1A1A24;"><span style="font-size:10px;color:#6B6B7E;text-transform:uppercase;letter-spacing:1px;">Besoins</span><br/><span style="font-size:13px;color:#E8D5B0;">' + escapeHtml(besoins) + '</span></td></tr>'
+    + '</table>'
+    + driveBtn
+    + '</td></tr>'
+
+    // Footer
+    + '<tr><td style="padding:16px 28px;background:#0B0B0F;border-top:1px solid #1A1A24;text-align:center;">'
+    + '<p style="margin:0;font-size:10px;color:#22222E;">Le detail complet est dans ton Gmail · lboost-digitalweb.fr</p>'
+    + '</td></tr>'
+
+    + '</table></td></tr></table></body></html>';
+
+  GmailApp.sendEmail(NOTIFY_EMAIL,
+    '🧁 Nouveau questionnaire ' + CLIENT_NAME + ' — PDF disponible',
+    'Nouveau questionnaire recu le ' + date + '. Lien PDF : ' + (pdfUrl || 'non disponible'),
+    {
+      htmlBody: html,
       name: 'L-BOOST DigitalWeb'
     }
   );
