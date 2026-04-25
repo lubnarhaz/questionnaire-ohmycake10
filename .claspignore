@@ -1,0 +1,7 @@
+index.html
+SETUP.md
+.git/**
+.gitignore
+.clasp.json
+.claspignore
+node_modules/**
